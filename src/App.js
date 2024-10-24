@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import NoteList from './component/note-list/note-list';
 import ModalPage from './component/modal/modal';
 import NoteRaw from './component/note-raw/note-raw';
+import SearchComponent from './component/search-bar/search-bar';
 
 const Container = styled.div`
   height : 100vh;
@@ -53,7 +54,8 @@ class App extends Component{
     notes: [
       {date: new Date(), text: '첫 번째 메모 텍스트', title: '첫 번째 메모입니다.', edited: false},
       {date: new Date(), text: '두 번째 메모', title: 'SECOND', edited: false},
-    ]
+    ],
+    modalToogle: false
   };
 
   toogleModal = () => {
@@ -62,9 +64,27 @@ class App extends Component{
     });
   };
 
+  onChangeSearchText = e => {
+    this.setState({
+      search: e.target.value
+    });
+  };
+
   createNote = (title, text) => {
     this.setState({
       notes: [...this.state.notes, {title, text, date: new Date(), edited: false}]
+    });
+  };
+
+  changeNote = (title, text, number) => {
+    this.setState({
+      notes: this.state.notes.map((note, idx) => (idx === number ? { ...note, title, text, edited: true } : note))
+    });
+  };
+
+  deleteNote = number => {
+    this.setState({
+      notes: this.state.notes.filter((note, idx) => (idx === number ? false : true))
     });
   };
 
@@ -92,10 +112,15 @@ class App extends Component{
           </div>
           <div>
             <button onClick={this.toogleModal}>노트 작성</button>
-            <div id="search-bar" />
+            <SearchComponent search={this.state.search} onChangeSearchText={this.onChangeSearchText} />
           </div>
         </SearchBar>
-          <NoteList notes={this.state.notes}/>
+          <NoteList 
+            search={this.state.search}
+            notes={this.state.notes}
+            changeNote={this.changeNote}
+            deleteNote={this.deleteNote}
+          />
         </AppDiv>
       </Container>
     );

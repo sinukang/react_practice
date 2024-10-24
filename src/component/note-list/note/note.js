@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import './note.scss';
+import NoteRaw from '../../note-raw/note-raw';
+import Delete from '../../delete/delete';
+import ModalPage from '../../modal/modal';
 
 class Note extends Component{
   static defaultProps = {
@@ -9,7 +12,7 @@ class Note extends Component{
   };
 
   state ={
-    showEditModal: false,
+    showChangeModal: false,
     showDeleteModal: false,
   };
 
@@ -21,7 +24,7 @@ class Note extends Component{
 
   changeDeleteToogle = () => {
     this.setState({
-      changeDeleteModal: !this.state.changeDeleteModal
+      showDeleteModal: !this.state.showDeleteModal
     });
   };
 
@@ -30,10 +33,10 @@ class Note extends Component{
       <div id="note-menu">
         <span>{this.props.title}</span>
         <span>
-          <span id="showChangeModal" onclick={this.changeEditToogle}>
+          <span id="showChangeModal" onClick={this.changeEditToogle}>
             편집
           </span>
-          <span id="changeDeleteModal" onclick={this.changeDeleteToogle}>
+          <span id="showDeleteModal" onClick={this.changeDeleteToogle}>
             삭제
           </span>
         </span>
@@ -41,10 +44,38 @@ class Note extends Component{
       <div id="date">
         <span>
           {this.props.date.toISOString()}
-          {this.props.edited && ' (edited'}
+          {this.props.edited && ' (edited)'}
         </span>
       </div>
       <div>{this.props.text}</div>
+
+      {this.state.showChangeModal && (
+        <ModalPage>
+          <NoteRaw
+            noteNumber={this.props.noteNumber}
+            action={this.props.changeNote}
+            close={this.changeEditToogle}
+            subject={'노트 수정'}
+            title={this.props.title}
+            text={this.props.text}
+          />
+        </ModalPage>
+      )}
+
+      {this.state.showDeleteModal && (
+        <ModalPage
+          close={() => {
+            this.toogle({ target: {id: 'showDeleteModal'} });
+          }}
+        >
+          <Delete
+            number={this.props.noteNumber}
+            action={this.props.deleteNote}
+            title={this.props.title}
+            close={this.changeDeleteToogle}
+          />
+        </ModalPage>
+      )}
     </div>
   );
 }
